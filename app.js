@@ -30,23 +30,29 @@ const server = http.createServer((req, res) => {
     req.on('data', (chunk) => {
       console.log(chunk);
       body.push(chunk);
-    }); // 특정 이벤트를 들을 수 있음 -> 데이터 이벤트가 발생하는 데에 버퍼가 도움을 준다
+    });
+
+    // 특정 이벤트를 들을 수 있음 -> 데이터 이벤트가 발생하는 데에 버퍼가 도움을 준다
     req.on('end', () => {
       // 버퍼 사용 : 청크를 받은 후 다루기 위해서 / Buffer : 전역에서 사용 가능
       const parsedBody = Buffer.concat(body).toString();
       const message = parsedBody.split('=')[1];
+      // writeFIleSync : 코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 동기화 모드)
       fs.writeFileSync('message.txt', message);
+
+      res.statusCode = 302;
+      res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
+      return res.end();
     });
-    res.statusCode = 302;
-    res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
-    // res.writeHead('Location'); // 한번에 여러가지 메타정보를 작성할수있게한다, 상태코드 302
-    return res.end();
   }
+
+  // 아래 코드가 먼저 실행 될 수도 있다! (위에 리턴이 없을경우!)
   res.setHeader('Content-Type', 'text/html');
   res.write('<html>');
   res.write('<head><title>My First Page</title></head>');
   res.write('<bode><h1>server start</h1></bode>');
   res.write('</html>');
+  res.end();
 });
 
 // listen(port, hostname) : Node가 스크립트를 바로 종료하지않고 계속 실행되면서 듣도록 한다.
