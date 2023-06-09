@@ -26,7 +26,17 @@ const server = http.createServer((req, res) => {
   }
 
   if (url === '/message' && method === 'POST') {
-    fs.writeFileSync('message.txt', 'DUMMY');
+    const body = [];
+    req.on('data', (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    }); // 특정 이벤트를 들을 수 있음 -> 데이터 이벤트가 발생하는 데에 버퍼가 도움을 준다
+    req.on('end', () => {
+      // 버퍼 사용 : 청크를 받은 후 다루기 위해서 / Buffer : 전역에서 사용 가능
+      const parsedBody = Buffer.concat(body).toString();
+      const message = parsedBody.split('=')[1];
+      fs.writeFileSync('message.txt', message);
+    });
     res.statusCode = 302;
     res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
     // res.writeHead('Location'); // 한번에 여러가지 메타정보를 작성할수있게한다, 상태코드 302
