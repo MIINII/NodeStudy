@@ -100,3 +100,24 @@ const server = http.createServer((req, res) => {
 ```
 
 ## 🔄 Router 요청
+
+- `writeFileSync`
+- `setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')` 👉 `'/'`로 설정하게 되면 이미 실행중인호
+  스트를 자동으로 사용하게 된다
+- `writeHead`
+
+```jsx
+...
+  if (url === '/message' && method === 'POST') {
+    fs.writeFileSync('message.txt', 'DUMMY');
+    res.statusCode = 302;
+    res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
+    // res.writeHead('Location'); // 한번에 여러가지 메타정보를 작성할수있게한다, 상태코드 302
+    return res.end();
+  }
+  res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<head><title>My First Page</title></head>');
+  res.write('<bode><h1>server start</h1></bode>');
+  res.write('</html>');
+```
