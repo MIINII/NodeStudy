@@ -38,7 +38,7 @@ const server = http.createServer((req, res) => {
       const parsedBody = Buffer.concat(body).toString();
       const message = parsedBody.split('=')[1];
       // writeFIleSync : 코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 동기화 모드)
-      fs.writeFileSync('message.txt', message, (err) => {
+      fs.writeFile('message.txt', message, (err) => {
         res.statusCode = 302;
         res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
         return res.end();

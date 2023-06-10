@@ -238,11 +238,12 @@ req.on('end', () => {
     const parsedBody = Buffer.concat(body).toString();
     const message = parsedBody.split('=')[1];
     // writeFIleSync : 코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 동기화 모드)
-    fs.writeFileSync('message.txt', message);
+    fs.writeFile('message.txt', message);
 
     res.statusCode = 302;
     res.setHeader('Location', '/'); // setHeader('위치지정', 브라우저가 수락하는 디폴트 헤더')
     return res.end();
+
   });
 
   res.setHeader('Content-Type', 'text/html');
@@ -254,7 +255,68 @@ req.on('end', () => {
 }
 ```
 
-`writeFileSync` : 코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 동기화 모드
-)
-
 ## ⛔ Blocking & NoneBlocking Code
+
+- **parameter**
+  - `file` : 저장할 파일의 경로, 파일명, 확장자명을 기입
+  - `data` : 파일에 기록될 데이터 양식
+  - `options`
+    - `encoding` : 파일의 인코딩을 지정하는 문자열 (default : utf8)
+    - `mode` : 파일 모드를 지정하는 정수값 (default : 0o666)
+    - `flag` : 파일에 쓰는 동안 사용되는 플래그를 지정하는 문자열(default : w)
+  - `callback` : 메소드가 실행될떄 호출되는 함수
+    - `err` : 작업에 실패하면 반환되는 오류
+
+---
+
+### ❓ `writeFileSync(file,data,options)`
+
+코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 **_동기_**화 모드 ) **매우 짧
+은파일의 코드**에서만 사용하길 권장!!
+
+> ❔ `🔪만약` 엄청 **큰 용량의 파일을 읽거나 복사**하는 등의 상황에서 <u>코드 실행을 막는경우</u>?
+>
+> ❗ 다음 줄과 다른 모든 코드가 파일 운영이 완료될때까지 **🛑실행을 멈춤🛑** + 새로 유입되는 **요청
+> 들도 취급되지 않음** 👉 `writeFile` 사용
+
+```jsx
+{
+  ...
+  ...
+    return req.on('end', () => {
+      const parsedBody = Buffer.concat(body).toString();
+      const message = parsedBody.split('=')[1];
+
+      fs.writeFile('message.txt', message, (err) => {
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        return res.end();
+      });
+    });
+  }
+```
+
+### ❓ `writeFile(file, data, options, callback)` 을 사용해야 하는 이유!!
+
+- 🌟 지정된 데이터를 파일에 비동기적으로 쓰는데 사용
+- 경로와 데이터를 받아들일 뿐만 아니라 세번째 인수인 콜백까지도 포함한다!!
+- 파일이 있으면 대체된다!
+- '옵션' 파라미터는 메서드의 기능을 수정하는데 사용 가능!
+
+노드는 암묵적으로 이벤트 리스너를 등록시킵니다.
+
+```jsx
+return req.on('end', () => {
+  const parsedBody = Buffer.concat(body).toString();
+  const message = parsedBody.split('=')[1];
+
+  fs.writeFile('message.txt', message, (err) => {
+    // 아래 응답은 파일 작업이 완료된 경우에만 전송되어야함! 당연!
+    res.statusCode = 302;
+    res.setHeader('Location', '/');
+    return res.end();
+  });
+});
+```
+
+
