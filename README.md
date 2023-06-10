@@ -257,6 +257,4 @@ req.on('end', () => {
 `writeFileSync` : 코드 실행을 막는 메서드 (파일이 완료될때까지 다음 코드를 실행하지 않는 동기화 모드
 )
 
-```
-
-```
+## ⛔ Blocking & NoneBlocking Code
