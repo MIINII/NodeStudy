@@ -347,3 +347,88 @@ return req.on('end', () => {
       (module.)exports.handler = requestHandler;
       (module.)exports.someText = '시험용 텍스트';
       ```
+
+# 💁 5강 : Express.js작업 (frameWork)
+
+## ⚙️ Setting
+
+```shell
+yarn init
+```
+
+### 😈 Nodemon 설치
+
+> 서버를 수동으로 재시동하지 않아도 되게하는 패키지
+
+```shell
+npm install -g nodemon
+```
+
+### 🚅 Express.js 설치
+
+```shell
+// npm
+npm install --save express
+
+// yarn
+yarn add express
+```
+
+👉 `--save` : 프로덕션 의존성 (실행하게될 모든 서버와 컴퓨터에 설치되어야함!!!)
+
+---
+
+## 🚆 Express.js
+
+> 필수적인 작업이라던가 신경쓰고 싶지않은 세부내용을 외부에 맡길 수 있게 도와주고, 일련의 규칙과 더
+> 욱 깔끔한 코드를 작성하고 핵심적인 작업에 집중할 수 있게 도와주는 유틸리티 함수 제공
+
+- 파싱을 대신해 주기 위한 패키지를 쉽게 설치하게 도와준다~
+- 애플리케이션을 정의하는 코드. 즉, 다른 애플리케이션으로부터 차별화하는 요소
+- 무거운 작업은 다 프레임 워크가 해줌~ㅋ
+
+Express.js는 `1) 미들웨어`와 연관이 되어있음. ❗서드파티 패키지를 쉽게 Express.js에 장착하여 특정 기
+능을 추가❗
+
+## 🖕 미들웨어
+
+> 들어오는 요청을 `express.js`에 의한 다양한 함수를 통해 자동으로 이동  
+> (= 단일 요청 핸들러를 보유하는 대신 응답을 전송하기 전까지 요청이 통과하게 될 다양한 함수들을 연결
+> 할가능성 확보 👉 하나의 함수를 사용하여 처리하기보다는 코드를 조각들로 분할할수 있는것이
+> Express.js의특징)
+
+- 상단에 있는 미들웨어가 먼저 실행되며 하단으로 갈수록 나중에 실행
+- next를 호출 여부에 따라 다음 <u>**미들웨어가 실행될 수도 있고 실행되지 않을 수도 있다.**</u>
+- 미들웨어는 여러개 선언 될 수 있음.
+
+---
+
+## ✏️ Express 본격 사용해보기
+
+```jsx
+const express = require('express');
+const app = express();
+
+// 1. 미들웨어 사용방법
+// use : 새로운 미들웨어 함수 추가
+app.use((req, res, next) => {
+  // 다음 미들웨어로 요청이 이동할 수 있게 실행되어야함
+  console.log('In the Middleware');
+  next();
+});
+```
+
+### `app.use()`
+
+```jsx
+// 이 부분이 미들웨어 함수 영역
+(req, res, next) => {
+  console.log('In the Middleware');
+  next();
+};
+```
+
+#### `next()`
+
+> 미들웨어 함수에 대한 콜백 파라미터.  
+> `next()`를 작성하게 되면 다음 미들웨어 함수가 호출됨
