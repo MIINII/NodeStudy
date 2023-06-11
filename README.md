@@ -319,4 +319,23 @@ return req.on('end', () => {
 });
 ```
 
+## 🏧 Module 시스템
 
+> 파일 내용의 캐시가 저장되고 외부에서 수정할수 ❌ 👉 원본 수정 불가능 , 외부에서 읽을 수 있는 내용
+> 만 내보낸다
+
+1. 모듈 하나만 내보내기
+   1. ```jsx
+      module.exports = requestHandler;
+      ```
+2. 모듈 여러개 내보내기
+   1. ```jsx
+      module.exports = {
+        handler: requestHandler,
+        someText: '시험용 텍스트',
+      };
+      ```
+   2. ```jsx
+      (module.)exports.handler = requestHandler;
+      (module.)exports.someText = '시험용 텍스트';
+      ```
