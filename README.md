@@ -431,4 +431,91 @@ app.use((req, res, next) => {
 #### `next()`
 
 > 미들웨어 함수에 대한 콜백 파라미터.  
-> `next()`를 작성하게 되면 다음 미들웨어 함수가 호출됨
+> `next()`를 작성하게 되면 다음 미들웨어 함수가 호출됨! 그리고 요청이 계속 전달됨  
+> **`응답을 보내고자 한다면 사용하지 않는것이 좋음`** + 하나 이상의 응답을 보내려고 한다면 오류난다!
+
+```jsx
+app.use('/', (req, res, next) => {
+  // 다음 미들웨어로 요청이 이동할 수 있게 실행되어야함
+  console.log('항상 실행중...'); // 랜더링될때마다 나온다!!
+  next(); // 계속 요청이 전달되는 중
+});
+
+app.use('/add-product', (req, res, next) => {
+  // 다음 미들웨어로 요청이 이동할 수 있게 실행되어야함
+  console.log('다른 미들웨어');
+  res.send('<h1>Add Product!</h1>');
+});
+
+// use : 새로운 미들웨어 함수 추가
+app.use('/', (req, res, next) => {
+  // 다음 미들웨어로 요청이 이동할 수 있게 실행되어야함
+  console.log('미들웨어다!');
+  res.send('<h1>실행중</h1>');
+});
+```
+
+## 📞 수신 요청 분석
+
+```jsx
+app.use('/', (req, res, next) => {
+  console.log('1️⃣ 항상 실행중...');
+  next();
+});
+
+app.use('/add-product', (req, res, next) => {
+  console.log('2️⃣ 다른 미들웨어');
+  res.send(
+    '<form action="/product" method="POST"><input type="text" name="title"><button type="submit">추가</button></input></form>'
+  );
+});
+
+app.use('/product');
+
+app.use('/', (req, res, next) => {
+  console.log('1️⃣-2️⃣ 미들웨어다!');
+  res.send('<h1>실행중</h1>');
+});
+```
+
+1. 이 미들웨어(=`/product`) 👉 `add-product` 전이나 후에 두지않아도 된다
+2. 경로에 공통점이 없고, 'add-product'와 'product'는 다르기 때문
+3. 1-2 : `/` 전에만 오면 된다. 그 후에 온다면 저것보다 먼저 실행
+
+### 🏃 Body-Parser
+
+> Express.js 에 포함되어 있지만 그래도 써드파티로 설치하는것을 추천
+
+```shell
+yarn add body-parser
+npm i --save body-parser
+```
+
+```jsx
+// 🧪 분석기
+// 요청이 어디로 향하든 본문 분석이 이루어지게 하기 위해
+app.use(bodyParser.urlencoded({ extended: false })); // 미들웨어 등록하는 코드 👉 미들웨어 분석
+```
+
+`extended:false` : 비표준 대상의 분석이 가능한지 확인
+
+### 🛑 `POST`요청으로 미들웨어 실행 제한
+
+> 현재 코드는 미들웨어가 `POST` 뿐만 아니라 `GET` 요청에 대해서도 실행 👉 `app.use()` 대신
+> `app.get()` 사용 : `GET` 요청에만 작동
+
+```jsx
+// app.get() : GET요청에만 작동
+app.get('/product', (req, res) => {
+  console.log(req.body);
+  res.redirect('/'); // req : 요청의 본문을 분석하지 않음 👉 미들웨어를 이용해 분석기 등록
+});
+```
+
+```jsx
+// app.post() : POST요청에만 작동
+app.post('/product', (req, res) => {
+  console.log(req.body);
+  res.redirect('/'); // req : 요청의 본문을 분석하지 않음 👉 미들웨어를 이용해 분석기 등록
+});
+```
