@@ -18,6 +18,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(adminRouters);
 app.use(shopRouters);
 
+// Err 페이지 처리
+app.use((rea, res, next) => {
+  res.status(404).send('<h1>⚠️페이지를 찾을 수 없습니다⚠️</h1>');
+});
+
 // server
 const server = http.createServer(app);
 server.listen(3000);
